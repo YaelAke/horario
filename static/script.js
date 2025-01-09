@@ -12,12 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.getElementById('omit-teachers-form');
     teachers.forEach(teacher => {
-        const label = document.createElement('label');
-        label.innerHTML = `
+        const container = document.createElement('label');
+        container.className = 'checkbox-container';
+        container.innerHTML = `
             <input type="checkbox" value="${teacher}" name="omit-teachers">
-            ${teacher}
+            <div class="custom-checkbox"></div>
+            <span class="label-text">${teacher}</span>
         `;
-        form.appendChild(label);
+        form.appendChild(container);
     });
 });
 
@@ -168,3 +170,59 @@ function displaySchedules(schedules) {
         container.appendChild(table);
     });
 }
+
+function startDogWalk() {
+    const dogRainContainer = document.getElementById('dog-rain-container');
+
+    // Rutas de las imágenes de los perritos caminando
+    const dogImageLeftToRight = './walk.gif'; // GIF para la dirección izquierda a derecha
+    const dogImageRightToLeft = './walkr.gif'; // GIF para la dirección derecha a izquierda
+
+    function createWalkingDog() {
+        return new Promise((resolve) => {
+            const dog = document.createElement('img');
+            dog.className = 'walking-dog';
+
+            // Alternar dirección aleatoriamente
+            const moveDirection = Math.random() > 0.5 ? 'left-to-right' : 'right-to-left';
+
+            // Generar una posición vertical aleatoria
+            const verticalPosition = Math.random() * (window.innerHeight - 100); // Evitar que salga fuera de la pantalla
+            dog.style.top = `${verticalPosition}px`;
+
+            // Configurar dirección, animación y GIF según la dirección
+            if (moveDirection === 'left-to-right') {
+                dog.src = dogImageLeftToRight; // Usar GIF para izquierda a derecha
+                dog.style.left = '-100px'; // Empieza fuera del lado izquierdo
+                dog.style.animation = `move-left-to-right ${Math.random() * 5 + 3}s linear`;
+            } else {
+                dog.src = dogImageRightToLeft; // Usar GIF para derecha a izquierda
+                dog.style.left = '100vw'; // Empieza fuera del lado derecho
+                dog.style.animation = `move-right-to-left ${Math.random() * 5 + 3}s linear`;
+            }
+
+            // Agregar el perrito al contenedor
+            dogRainContainer.appendChild(dog);
+
+            // Eliminar el perrito una vez que termina su animación
+            const duration = parseFloat(dog.style.animationDuration) * 1000;
+            setTimeout(() => {
+                dog.remove();
+                resolve(); // Notificar que el perrito ha salido de la pantalla
+            }, duration);
+        });
+    }
+
+    // Mostrar un perrito, esperar a que termine, y luego mostrar el siguiente
+    async function loopDogs() {
+        while (true) {
+            await createWalkingDog();
+        }
+    }
+
+    // Iniciar el bucle
+    loopDogs();
+}
+
+// Iniciar el efecto de caminar al cargar la página
+window.onload = startDogWalk;
